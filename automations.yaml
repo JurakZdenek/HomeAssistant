@@ -1,0 +1,49 @@
+#Reload Python script and turn on climate after HA start
+- id: '1639249820059'
+  alias: Termostat - po startu
+  description: ''
+  trigger:
+  - platform: homeassistant
+    event: start
+  condition: []
+  action:
+  - service: python_script.kotel_programy
+  - service: climate.turn_on
+    target:
+      entity_id: climate.kotel
+  mode: single
+# Reload Python script when the program changes 
+- id: '1639250461755'
+  alias: Termostat - prepnuti programu
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: input_select.program_termostatu
+  condition: []
+  action:
+  - service: python_script.kotel_programy
+  - service: climate.turn_on
+    target:
+      entity_id: climate.kotel
+  mode: single
+# Every 5 minutes run Python script and turn on climate
+- id: '1639292644131'
+  alias: Termostat - refresh
+  description: ''
+  trigger:
+  - platform: time_pattern
+    minutes: /5
+    seconds: '0'
+  condition: []
+  action:
+  - service: python_script.kotel_programy
+  - service: climate.set_hvac_mode
+    target:
+      entity_id: climate.kotel
+    data:
+      hvac_mode: heat
+  - condition: state
+    entity_id: climate.kotel
+    attribute: hvac_action
+    state: heating
+  mode: single
